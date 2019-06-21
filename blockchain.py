@@ -237,6 +237,41 @@ def full_chain () :
     }
     return jsonify ( response ) , 200
 
+@app.route ( '/nodes/register' , methods = [ 'POST' ] )
+def register_nodes () :
+    values = request.get_json ( )
+    print(':::' , values)
+
+    nodes = values.get ( 'nodes' )
+    print('::::::::::::::', nodes)
+    if nodes is None :
+        return "Error: Por favor, proporcione una lista válida de nodos" , 400
+    for node in nodes :
+        blockchain.register_node ( node )
+
+    response = {
+        'message' : 'Se han añadido nuevos nodos' ,
+        'total_nodes' : list ( blockchain.nodes ) ,
+    }
+    return jsonify ( response ) , 201
+
+@app.route ( '/nodes/resolve' , methods = [ 'GET' ] )
+def consensus () :
+    replaced = blockchain.resolve_conflicts ( )
+
+    if replaced :
+        response = {
+            'message' : 'Nuestra cadena fue reemplazada' ,
+            'new_chain' : blockchain.chain
+        }
+    else :
+        response = {
+            'message' : 'Nuestra cadena tiene autoridad' ,
+            'chain' : blockchain.chain
+        }
+
+    return jsonify ( response ) , 200
+
 if __name__ == '__main__' :
     from argparse import ArgumentParser
 
