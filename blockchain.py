@@ -3,20 +3,78 @@ class blockchain:
         self.chain = []
         self.current_transactions = []
 
-    def new_block( self ):
-        pass
+    def new_block ( self , proof , previous_hash ) :
+        """
+        Crear un nuevo Bloque en el Cadena de Bloques
+        :param proof: La prueba dada por el algoritmo de Prueba de Trabajo
+        :param previous_hash: Hash del Bloque anterior
+        :return: Nuevo Bloque
 
-    def new_transaction( self ):
-        pass
+        """
 
-    def proof_of_work( self ):
-        pass
+        block = {
+            'index' : len ( self.chain ) + 1 ,
+            'timestamp' : time ( ) ,
+            'transactions' : self.current_transactions ,
+            'proof' : proof ,
+            'previous_hash' : previous_hash or self.hash ( self.chain [ -1 ] ) ,
+        }
+
+        # Anular la lista actual de transacciones
+        self.current_transactions = [ ]
+
+        self.chain.append ( block )
+        return block
+
+    def new_transaction ( self , sender , recipient , amount ) :
+        """
+        Crea una nueva transacción para ir al siguiente Bloque minado
+        :param sender: Dirección del remitente
+        :param recipient: Dirección del destinatario
+        :param amount: Importe
+        :return: El índice del Bloque que llevará a cabo esta transacción
+
+       """
+        self.current_transactions.append ( {
+            'sender' : sender ,
+            'recipient' : recipient ,
+            'amount' : amount ,
+        } )
+
+        return self.last_block [ 'index' ] + 1
 
     @property
-    def last_block( self ):
-        return self.chain[-1]
+    def last_block ( self ) :
+        return self.chain [ -1 ]
 
     @staticmethod
-    def hash(block):
-        pass
+    def hash ( block ) :
+        """
+        Crea un hash de bloque SHA-256
+        :param block: Bloque
+        """
+
+        # Debemos asegurarnos de que el Diccionario esté Ordenado, o tendremos hashes inconsistentes
+        block_string = json.dumps ( block , sort_keys = True ).encode ( )
+        return hashlib.sha256 ( block_string ).hexdigest ( )
+    
+    def proof_of_work ( self , last_block ) :
+        """
+        Algoritmo Simple de Prueba de Trabajo:
+        -Buscar un número p' tal que hash(pp') contenga 4 ceros a la izquierda
+        -Donde p es la prueba anterior, y p' es la nueva prueba
+
+        :param last_block: <dict> último bloque
+        :return: <int>
+        """
+
+        last_proof = last_block [ 'proof' ]
+        last_hash = self.hash ( last_block )
+
+        proof = 0
+        while self.valid_proof ( last_proof , proof , last_hash ) is False :
+            proof += 1
+
+        return proof
+
 
