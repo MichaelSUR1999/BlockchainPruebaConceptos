@@ -1,3 +1,12 @@
+import hashlib
+import json
+from time import time
+from urllib.parse import urlparse
+from uuid import uuid4
+
+import requests
+from flask import Flask , jsonify , request
+
 class blockchain:
     def __init__(self):
         self.chain = []
@@ -57,7 +66,7 @@ class blockchain:
         # Debemos asegurarnos de que el Diccionario esté Ordenado, o tendremos hashes inconsistentes
         block_string = json.dumps ( block , sort_keys = True ).encode ( )
         return hashlib.sha256 ( block_string ).hexdigest ( )
-    
+
     def proof_of_work ( self , last_block ) :
         """
         Algoritmo Simple de Prueba de Trabajo:
@@ -76,5 +85,23 @@ class blockchain:
             proof += 1
 
         return proof
+
+    @staticmethod
+    def valid_proof ( last_proof , proof , last_hash ) :
+        """
+        Valida la prueba
+        :param last_proof: <int> Prueba Anterior
+        :param proof: <int> Prueba de corriente
+        :param last_hash: <str> El hash del bloque anterior
+        :return: <bool> True si es correcto, False si no lo es.
+
+        """
+
+        guess = f'{last_proof}{proof}{last_hash}'.encode ( )
+        guess_hash = hashlib.sha256 ( guess ).hexdigest ( )
+        return guess_hash [ :4 ] == "0000"
+
+
+
 
 
