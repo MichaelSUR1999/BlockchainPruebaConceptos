@@ -137,6 +137,22 @@ def mine () :
     }
     return jsonify ( response ) , 200
 
+@app.route ( '/transactions/new' , methods = [ 'POST' ] )
+def new_transaction () :
+    values = request.get_json ({
+        "sender" : "sender" ,
+        "recipient" : "recipient" ,
+        "amount" : "amount"
+    })
+    """Compruebe que los campos obligatorios están en los datos POST."""
+    required = [ 'sender' , 'recipient' , 'amount' ]
+    if not all (k in values for k in required):
+        return 'Valores que faltan' , 400
+    # Crear una nueva transacción
+    index = blockchain.new_transaction ( values [ 'sender' ] , values [ 'recipient' ] , values [ 'amount' ] )
+    response = {'message' : f'La transacción se agregará al bloque {index}'}
+    return jsonify ( response ) , 201
+
 
 
 
