@@ -101,6 +101,17 @@ class blockchain:
         guess_hash = hashlib.sha256 ( guess ).hexdigest ( )
         return guess_hash [ :4 ] == "0000"
 
+# Instancia del nodo
+app = Flask ( __name__ )
+
+# Generar una dirección única globalmente para este nodo
+node_identifier = str ( uuid4 ( ) ).replace ( '-' , '' )
+
+# Instancia de la cadena de bloques
+blockchain = Blockchain ( )
+
+
+
 
 
 
