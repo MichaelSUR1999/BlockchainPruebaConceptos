@@ -110,6 +110,32 @@ node_identifier = str ( uuid4 ( ) ).replace ( '-' , '' )
 # Instancia de la cadena de bloques
 blockchain = Blockchain ( )
 
+@app.route ( '/mine' , methods = [ 'GET' ] )
+def mine () :
+    # Ejecutamos el algoritmo de prueba de trabajo para obtener la siguiente prueba....
+    last_block = blockchain.last_block
+    proof = blockchain.proof_of_work ( last_block )
+
+    # Debemos recibir una recompensa por encontrar la prueba.
+    # El remitente es "0" para indicar que este nodo ha extraído una nueva moneda.
+    blockchain.new_transaction (
+        sender = "0" ,
+        recipient = node_identifier ,
+        amount = 1 ,
+    )
+
+    # Forjar el nuevo bloque añadiéndolo a la cadena
+    previous_hash = blockchain.hash ( last_block )
+    block = blockchain.new_block ( proof , previous_hash )
+
+    response = {
+        'message' : "Nuevo Bloque Forjado" ,
+        'index' : block [ 'index' ] ,
+        'transactions' : block [ 'transactions' ] ,
+        'proof' : block [ 'proof' ] ,
+        'previous_hash' : block [ 'previous_hash' ] ,
+    }
+    return jsonify ( response ) , 200
 
 
 
